@@ -17,8 +17,8 @@
 #define PIN_ENABLE 16
 #define PIN_DATA 13
 #define PIN_CLOCK 14
-#define PIN_LATCH 0
-#define PIN_BUTTON 2
+#define PIN_LATCH 12
+#define PIN_BUTTON 16
 #endif
 
 // disable if you do not want to use the internal storage
@@ -42,7 +42,7 @@ constexpr uint8_t MAX_BRIGHTNESS = 255;
 constexpr uint16_t TOTAL_PIXELS = ROWS * COLS;
 
 // set your city or coords (https://github.com/chubin/wttr.in)
-#define WEATHER_LOCATION "Hamburg"
+#define WEATHER_LOCATION "Bergen"
 
 // name of WiFi created by the device if no known WiFi is available
 #define WIFI_MANAGER_SSID "IKEA"
