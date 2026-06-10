@@ -6,7 +6,6 @@
 
 #include <ESPAsyncWebServer.h>
 #include <ElegantOTA.h>
-
 #include "PluginManager.h"
 #include "screen.h"
 #include "secrets.h"

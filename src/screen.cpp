@@ -17,10 +17,7 @@ void Screen_::setBrightness(uint8_t brightness, bool shouldStore)
 {
   brightness_ = brightness;
 
-#ifndef ESP8266
-  pinMode(PIN_ENABLE, OUTPUT);
-  digitalWrite(PIN_ENABLE, LOW);
-#endif
+
 
 #ifdef ENABLE_STORAGE
   if (shouldStore)
@@ -126,22 +123,7 @@ void Screen_::setup()
   Screen.setCurrentRotation(0);
 #endif
 
-  // TODO find proper unused pins for MISO and SS
-#ifdef ESP8266
-  // Initialize control pins
-  pinMode(PIN_LATCH, OUTPUT);
-  digitalWrite(PIN_LATCH, LOW);
-
-  SPI.pins(PIN_CLOCK, 12, PIN_DATA, 15); // SCLK, MISO, MOSI, SS);
-  SPI.begin();
-  SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
-
-  timer1_attachInterrupt(&onScreenTimer);
-  timer1_enable(TIM_DIV256, TIM_EDGE, TIM_SINGLE);
-  timer1_write(100);
-#endif
-
-#ifdef ESP32
+#ifdef ESP32 
   // Initialize control pins
   pinMode(PIN_LATCH, OUTPUT);
   pinMode(PIN_ENABLE, OUTPUT);
@@ -151,9 +133,11 @@ void Screen_::setup()
   SPI.begin(PIN_CLOCK, -1, PIN_DATA, -1); // SCLK, MISO, MOSI, SS (-1 for unused pins)
   SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0));
 
-  hw_timer_t *Screen_timer = timerBegin(1000000);
-  timerAttachInterrupt(Screen_timer, &onScreenTimer);
-  timerAlarm(Screen_timer, TIMER_INTERVAL_US, true, 0);
+  hw_timer_t *Screen_timer = NULL;
+  Screen_timer = timerBegin(0, 80, true);
+  timerAttachInterrupt(Screen_timer, &onScreenTimer, true);
+  timerAlarmWrite(Screen_timer, TIMER_INTERVAL_US, true);
+  timerAlarmEnable(Screen_timer);
 #endif
 }
 
@@ -285,9 +269,7 @@ IRAM_ATTR void Screen_::_render()
   digitalWrite(PIN_LATCH, LOW);
   SPI.writeBytes(bits, sizeof(spi_bits));
   digitalWrite(PIN_LATCH, HIGH);
-#ifdef ESP8266
-  timer1_write(100);
-#endif
+
 }
 
 void Screen_::drawLine(int x1, int y1, int x2, int y2, int ledStatus, uint8_t brightness)

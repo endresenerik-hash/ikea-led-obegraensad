@@ -12,22 +12,24 @@
 #define PIN_LATCH 12
 #define PIN_BUTTON 16
 #endif
-
-#ifdef ESP8266
+/*
+//#ifdef ESP8266
 #define PIN_ENABLE 16
 #define PIN_DATA 13
 #define PIN_CLOCK 14
 #define PIN_LATCH 12
 #define PIN_BUTTON 16
-#endif
+//#endif
+*/
 
 // disable if you do not want to use the internal storage
 // https://randomnerdtutorials.com/esp32-save-data-permanently-preferences/
 // timer1 on esp8266 is not compatible with flash file system reads
+/*
 #ifndef ESP8266
 #define ENABLE_STORAGE
 #endif
-
+*/
 #ifdef ENABLE_SERVER
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.json
 #define NTP_SERVER "de.pool.ntp.org"
@@ -48,13 +50,13 @@ constexpr uint16_t TOTAL_PIXELS = ROWS * COLS;
 #define WIFI_MANAGER_SSID "IKEA"
 
 // use ALL of the following to use static IP config
-/*
-#define IP_ADDRESS "192.168.0.250"
+
+#define IP_ADDRESS "192.168.1.187"
 #define SUBNET "255.255.255.0"
 #define DNS1 "1.1.1.1"
 #define DNS2 "8.8.8.8"
-#define GWY "192.168.0.1"
-*/
+#define GWY "192.168.1.1"
+
 
 // ---------------
 
