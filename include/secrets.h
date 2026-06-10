@@ -2,7 +2,7 @@
 #pragma once
 
 // This defines the name of your device
-#define WIFI_HOSTNAME "ikea-led"
+#define WIFI_HOSTNAME "ikea-led2"
 
 #ifdef ESP8266
 #define WIFI_SSID ""
