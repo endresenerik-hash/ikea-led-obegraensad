@@ -2,10 +2,11 @@
 #include <BfButton.h>
 #include <SPI.h>
 
-#ifdef ESP8266
+//#ifdef ESP8266
 /* Fix duplicate defs of HTTP_GET, HTTP_POST, ... in ESPAsyncWebServer.h */
-#define WEBSERVER_H
-#endif
+//#define WEBSERVER_H
+//#endif
+
 
 #include <WiFiManager.h>
 
@@ -51,7 +52,6 @@
 #include "plugins/AnimationPlugin.h"
 #include "plugins/BigClockPlugin.h"
 #include "plugins/ClockPlugin.h"
-#include "plugins/WeatherPlugin.h"
 #endif
 
 #include "asyncwebserver.h"
@@ -209,7 +209,6 @@ void baseSetup()
   pluginManager.addPlugin(new ClockPlugin());
   pluginManager.addPlugin(new PongClockPlugin());
   pluginManager.addPlugin(new TickingClockPlugin());
-  pluginManager.addPlugin(new WeatherPlugin());
   pluginManager.addPlugin(new AnimationPlugin());
   pluginManager.addPlugin(new DDPPlugin());
   pluginManager.addPlugin(new ArtNetPlugin());
