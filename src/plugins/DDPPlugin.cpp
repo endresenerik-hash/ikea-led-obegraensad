@@ -1,63 +1,78 @@
 #include "plugins/DDPPlugin.h"
+#include <vector>
+
+#ifdef ASYNC_UDP_ENABLED
+
+static std::vector<uint8_t> rxFrame;     // latest received frame (network thread)
+static std::vector<uint8_t> renderFrame; // frame used by loop (UI thread)
+static portMUX_TYPE frameMux = portMUX_INITIALIZER_UNLOCKED;
 
 void DDPPlugin::setup()
 {
-#ifdef ASYNC_UDP_ENABLED
   udp = new AsyncUDP();
+
   if (udp->listen(4048))
   {
-    Serial.print("DDP server listening at port: 4048");
+    Serial.println("DDP server listening at port: 4048");
 
-    udp->onPacket([](AsyncUDPPacket packet) {
-      if (packet.length() >= 10)
-      {                                           // Basic DDP header check
-        const uint8_t *data = packet.data() + 10; // Skip header
-        const size_t dataLength = packet.length() - 10;
-        int count = std::min((int)(dataLength / 3), ROWS * COLS); // Each pixel is RGB
+    udp->onPacket([](AsyncUDPPacket packet)
+    {
+      if (packet.length() < 10) return;
 
-        if (count == 1)
-        { // Single pixel mode
-          uint8_t brightness = (data[0] + data[1] + data[2]) / 3;
-          for (int i = 0; i < ROWS * COLS; i++)
-          {
-            Screen.setPixelAtIndex(i, brightness > 4, brightness);
-          }
-        }
-        else
-        { // Full pixel mapping
-          for (int i = 0; i < count; i++)
-          {
-            uint8_t brightness = (data[i * 3] + data[i * 3 + 1] + data[i * 3 + 2]) / 3;
-            Screen.setPixelAtIndex(i, brightness > 4, brightness);
-          }
-        }
-      }
+      const uint8_t* data = packet.data() + 10;
+      size_t len = packet.length() - 10;
+
+      int count = std::min((int)(len / 3), ROWS * COLS);
+
+      // Copy safely into RX buffer
+      portENTER_CRITICAL(&frameMux);
+
+      rxFrame.resize(count * 3);
+      memcpy(rxFrame.data(), data, count * 3);
+
+      portEXIT_CRITICAL(&frameMux);
     });
   }
-#endif
+}
+
+void DDPPlugin::loop()
+{
+  // swap buffers safely
+  portENTER_CRITICAL(&frameMux);
+  renderFrame = rxFrame;
+  portEXIT_CRITICAL(&frameMux);
+
+  if (!renderFrame.empty())
+  {
+    int count = std::min((int)(renderFrame.size() / 3), ROWS * COLS);
+
+    for (int i = 0; i < count; i++)
+    {
+      uint8_t r = renderFrame[i * 3 + 0];
+      uint8_t g = renderFrame[i * 3 + 1];
+      uint8_t b = renderFrame[i * 3 + 2];
+
+      uint8_t brightness = (r + g + b) / 3;
+
+      Screen.setPixelAtIndex(i, brightness > 4, brightness);
+    }
+  }
+
+  delay(1);
 }
 
 void DDPPlugin::teardown()
 {
-#ifdef ASYNC_UDP_ENABLED
   if (udp)
   {
     delete udp;
     udp = nullptr;
   }
-#endif
 }
 
-void DDPPlugin::loop()
-{
-#ifdef ESP32
-  vTaskDelay(1);
-#else
-  delay(1);
-#endif
-}
-
-const char *DDPPlugin::getName() const
+const char* DDPPlugin::getName() const
 {
   return "DDP";
 }
+
+#endif
