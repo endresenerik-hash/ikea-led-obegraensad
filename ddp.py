@@ -59,7 +59,7 @@ def create_arg_parser() -> argparse.ArgumentParser:
     )
 
     parent_parser.add_argument(
-        "--ip", type=str, default="192.168.178.50", help="IP address of the display"
+        "--ip", type=str, default="192.168.1.187", help="IP address of the display"
     )
     parent_parser.add_argument("--port", type=int, default=4048, help="UDP port")
     parent_parser.add_argument(
