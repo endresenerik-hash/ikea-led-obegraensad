@@ -12,7 +12,7 @@ private:
   std::vector<int> previousHH;
   std::vector<int> previousMM;
   bool previousLeadingZero;
-
+  bool ntpFailed = false;
 public:
   void setup() override;
   void loop() override;
